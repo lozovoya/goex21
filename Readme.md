@@ -1,4 +1,4 @@
-Golang Exercise v21
+## Golang Exercise v21
 
 Service provides API for the company with following attributes:
  - Name
