@@ -4,12 +4,14 @@ import (
 	"GoEx21/internal/api/httpserver"
 	v1 "GoEx21/internal/api/httpserver/v1"
 	"GoEx21/internal/domain/usecase/company"
+	"GoEx21/internal/reminder/rabbitmq"
 	"GoEx21/internal/repository/postgres"
 	"context"
 	"github.com/caarlos0/env"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v4/pgxpool"
 	log "github.com/sirupsen/logrus"
+	"github.com/streadway/amqp"
 	"net"
 	"net/http"
 	"os"
@@ -22,6 +24,7 @@ type Params = struct {
 	User    string `env:"User" envDefault:"user"`
 	Pass    string `env:"HOST" envDefault:"pass"`
 	Country string `env:"COUNTRY" envDefault:"Cyprus"`
+	AmqpUrl string `env:"AMQP_Url" envDefault:"amqp://quest:quest@localhost:5672/"`
 }
 
 func main() {
@@ -46,12 +49,23 @@ func execute(config Params) (err error) {
 		"app": "GoEx21",
 	})
 
+	amqpConn, err := amqp.Dial(config.AmqpUrl)
+	if err != nil {
+		lg.Infof("Tried to connect to Rabbit")
+	}
+	amqpCh, err := amqpConn.Channel()
+	if err != nil {
+		lg.Infof("Tried to connect to Rabbit")
+	}
+	defer amqpCh.Close()
+	reminderService := rabbitmq.NewCompanyEvent(amqpCh)
+
 	companyPool, err := pgxpool.Connect(context.Background(), config.DSN)
 	if err != nil {
 		return err
 	}
 	companyRepo := postgres.NewCompanyRepo(companyPool)
-	companyUsecase := company.NewCompanyUsecase(companyRepo)
+	companyUsecase := company.NewCompanyUsecase(companyRepo, reminderService)
 	companyController := v1.NewCompanyController(companyUsecase, lg)
 
 	var creds = map[string]string{config.User: config.Pass}

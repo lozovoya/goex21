@@ -12,7 +12,7 @@ Content-Type: application/json
 
 ### Search company
 
-GET http://localhost:8888/api/v1/company/search?name=xm
+GET http://localhost:8888/api/v1/company/search?name=epam
 
 ### Edit company
 

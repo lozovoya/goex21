@@ -28,9 +28,14 @@ func companyRouter(
 	creds map[string]string,
 	country string,
 	lg *logrus.Entry) {
-	router.Post("/company/add", controller.AddCompany)
-	//router.With(middleware.BasicAuth("goex21", creds)).Post("/company/add", controller.AddCompany)
-	router.With(mw.CountryChecker(country, lg)).Get("/company/search", controller.SearchCompany)
+	router.With(
+		middleware.BasicAuth("goex21", creds),
+		mw.CountryChecker(country, lg)).Post(
+		"/company/add", controller.AddCompany)
+	router.Get("/company/search", controller.SearchCompany)
 	router.Post("/company/edit", controller.EditCompany)
-	router.Get("/company/delete", controller.DeleteCompany)
+	router.With(
+		middleware.BasicAuth("goex21", creds),
+		mw.CountryChecker(country, lg)).Get(
+		"/company/delete", controller.DeleteCompany)
 }

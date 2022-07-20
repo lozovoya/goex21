@@ -51,7 +51,7 @@ func (c *CompanyController) AddCompany(writer http.ResponseWriter, request *http
 func (c *CompanyController) SearchCompany(writer http.ResponseWriter, request *http.Request) {
 	values := request.URL.Query()
 	conditions, err := c.getParameters(values)
-	if err != nil {
+	if (err != nil) && !errors.Is(err, utils.ErrNoParameters) {
 		c.lg.Error(err)
 		http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return

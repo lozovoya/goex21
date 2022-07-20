@@ -3,6 +3,7 @@ package company
 import (
 	"GoEx21/internal/domain/model"
 	"GoEx21/internal/domain/usecase"
+	"GoEx21/internal/reminder"
 	"GoEx21/internal/repository"
 	"context"
 	"fmt"
@@ -10,10 +11,13 @@ import (
 
 type CompanyUsecase struct {
 	repoCompany repository.CompanyRepositoryInterface
+	reminder    reminder.ReminderInterface
 }
 
-func NewCompanyUsecase(repoCompany repository.CompanyRepositoryInterface) usecase.CompanyUsecaseInterface {
-	return &CompanyUsecase{repoCompany: repoCompany}
+func NewCompanyUsecase(
+	repoCompany repository.CompanyRepositoryInterface,
+	reminder reminder.ReminderInterface) usecase.CompanyUsecaseInterface {
+	return &CompanyUsecase{repoCompany: repoCompany, reminder: reminder}
 }
 
 func (c *CompanyUsecase) AddCompany(ctx context.Context, company *model.Company) (int64, error) {
