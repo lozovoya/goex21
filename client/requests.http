@@ -1,0 +1,28 @@
+### Add company
+POST http://localhost:8888/api/v1/company/add
+Content-Type: application/json
+
+{
+  "name": "shmoogle",
+  "code": "shgo-co",
+  "country": "usa",
+ "website": "www.googdle.com",
+  "phone": "33353333"
+}
+
+### Search company
+
+GET http://localhost:8888/api/v1/company/search?name=xm
+
+### Edit company
+
+POST http://localhost:8888/api/v1/company/edit?name=xm
+Content-Type: application/json
+
+{
+  "website": "asd"
+}
+
+### Delete company
+
+GET http://localhost:8888/api/v1/company/delete?country=usa

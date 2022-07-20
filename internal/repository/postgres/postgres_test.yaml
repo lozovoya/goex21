@@ -1,0 +1,25 @@
+conf:
+  setup:
+    requests:
+      - request: CREATE
+                 TABLE companies
+                 (
+                     ID BIGSERIAL PRIMARY KEY,
+                     Name TEXT UNIQUE NOT NULL CHECK ( Name != '' ),
+                     Code TEXT UNIQUE NOT NULL CHECK ( Code != '' ),
+                     Country TEXT NOT NULL,
+                     Website TEXT NOT NULL,
+                     Phone TEXT NOT NULL,
+                     IsActive BOOL DEFAULT TRUE NOT NULL,
+                     Created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                     Modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                 );
+      - request: INSERT
+                 INTO companies (name, code, country, website, phone, isactive)
+                 VALUES  ('netflix', 'nflx','usa', 'www.netflix.com','1234567',true),
+                         ('epam', 'epam','belarus', 'www.epam.com','9999999',true),
+                         ('disney', 'dis','usa', 'www.disney.com','888888',true),
+                         ('gitlab', 'gtlb','canada', 'www.gitlab.com','5353535',false);
+  teardown:
+    requests:
+      - request: DROP TABLE companies;
