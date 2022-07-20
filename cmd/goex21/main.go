@@ -4,14 +4,12 @@ import (
 	"GoEx21/internal/api/httpserver"
 	v1 "GoEx21/internal/api/httpserver/v1"
 	"GoEx21/internal/domain/usecase/company"
-	"GoEx21/internal/reminder/rabbitmq"
 	"GoEx21/internal/repository/postgres"
 	"context"
 	"github.com/caarlos0/env"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v4/pgxpool"
 	log "github.com/sirupsen/logrus"
-	"github.com/streadway/amqp"
 	"net"
 	"net/http"
 	"os"
@@ -21,10 +19,10 @@ type Params = struct {
 	Port    string `env:"PORT" envDefault:"8888"`
 	Host    string `env:"HOST" envDefault:"0.0.0.0"`
 	DSN     string `env:"DSN" envDefault:"postgres://app:pass@localhost:5433/goex21"`
-	User    string `env:"User" envDefault:"user"`
-	Pass    string `env:"HOST" envDefault:"pass"`
+	User    string `env:"USER" envDefault:"user"`
+	Pass    string `env:"PASS" envDefault:"pass"`
 	Country string `env:"COUNTRY" envDefault:"Cyprus"`
-	AmqpUrl string `env:"AMQP_Url" envDefault:"amqp://quest:quest@localhost:5672/"`
+	AmqpUrl string `env:"AMQP_URL" envDefault:"amqp://quest:quest@localhost:5672/"`
 }
 
 func main() {
@@ -49,23 +47,23 @@ func execute(config Params) (err error) {
 		"app": "GoEx21",
 	})
 
-	amqpConn, err := amqp.Dial(config.AmqpUrl)
-	if err != nil {
-		lg.Infof("Tried to connect to Rabbit")
-	}
-	amqpCh, err := amqpConn.Channel()
-	if err != nil {
-		lg.Infof("Tried to connect to Rabbit")
-	}
-	defer amqpCh.Close()
-	reminderService := rabbitmq.NewCompanyEvent(amqpCh)
+	//amqpConn, err := amqp.Dial(config.AmqpUrl)
+	//if err != nil {
+	//	lg.Infof("Tried to connect to Rabbit")
+	//}
+	//amqpCh, err := amqpConn.Channel()
+	//if err != nil {
+	//	lg.Infof("Tried to connect to Rabbit")
+	//}
+	//defer amqpCh.Close()
+	//reminderService := rabbitmq.NewCompanyEvent(amqpCh)
 
 	companyPool, err := pgxpool.Connect(context.Background(), config.DSN)
 	if err != nil {
 		return err
 	}
 	companyRepo := postgres.NewCompanyRepo(companyPool)
-	companyUsecase := company.NewCompanyUsecase(companyRepo, reminderService)
+	companyUsecase := company.NewCompanyUsecase(companyRepo, nil)
 	companyController := v1.NewCompanyController(companyUsecase, lg)
 
 	var creds = map[string]string{config.User: config.Pass}

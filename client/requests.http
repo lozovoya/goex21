@@ -12,11 +12,11 @@ Content-Type: application/json
 
 ### Search company
 
-GET http://localhost:8888/api/v1/company/search?name=epam
+GET http://localhost:8888/api/v1/company/search?country=usa
 
 ### Edit company
 
-POST http://localhost:8888/api/v1/company/edit?name=xm
+POST http://localhost:8888/api/v1/company/edit?name=epam
 Content-Type: application/json
 
 {
