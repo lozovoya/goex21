@@ -26,7 +26,7 @@ func (c *companyEvent) Init(queueName string) error {
 	return nil
 }
 
-func (c *companyEvent) SendEvent(company *model.Company) error {
+func (c *companyEvent) SendEvent(company []model.Company) error {
 	data, err := json.Marshal(company)
 	if err != nil {
 		return fmt.Errorf("rabbitmq.SendEvent: %w", err)

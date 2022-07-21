@@ -5,5 +5,5 @@ import (
 )
 
 type ReminderInterface interface {
-	SendEvent(company *model.Company) error
+	SendEvent(company []model.Company) error
 }

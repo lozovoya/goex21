@@ -1,7 +1,6 @@
 package httpserver
 
 import (
-	"GoEx21/internal/api/httpserver/mw"
 	v1 "GoEx21/internal/api/httpserver/v1"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -28,14 +27,20 @@ func companyRouter(
 	creds map[string]string,
 	country string,
 	lg *logrus.Entry) {
-	router.With(
-		middleware.BasicAuth("goex21", creds),
-		mw.CountryChecker(country, lg)).Post(
+	//router.With(
+	//	middleware.BasicAuth("goex21", creds),
+	//	mw.CountryChecker(country, lg)).Post(
+	//	"/company/add", controller.AddCompany)
+	//router.Get("/company/search", controller.SearchCompany)
+	//router.Post("/company/edit", controller.EditCompany)
+	//router.With(
+	//	middleware.BasicAuth("goex21", creds),
+	//	mw.CountryChecker(country, lg)).Get(
+	//	"/company/delete", controller.DeleteCompany)
+	router.Post(
 		"/company/add", controller.AddCompany)
 	router.Get("/company/search", controller.SearchCompany)
 	router.Post("/company/edit", controller.EditCompany)
-	router.With(
-		middleware.BasicAuth("goex21", creds),
-		mw.CountryChecker(country, lg)).Get(
+	router.Get(
 		"/company/delete", controller.DeleteCompany)
 }

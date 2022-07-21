@@ -20,12 +20,18 @@ func NewCompanyUsecase(
 	return &CompanyUsecase{repoCompany: repoCompany, reminder: reminder}
 }
 
-func (c *CompanyUsecase) AddCompany(ctx context.Context, company *model.Company) (int64, error) {
-	id, err := c.repoCompany.AddCompany(ctx, company)
+func (c *CompanyUsecase) AddCompany(ctx context.Context, company *model.Company) ([]model.Company, error) {
+	result, err := c.repoCompany.AddCompany(ctx, company)
 	if err != nil {
-		return id, fmt.Errorf("company.AddCompany: %w", err)
+		return result, fmt.Errorf("company.AddCompany: %w", err)
 	}
-	return id, nil
+	//commented for demo
+	//err = c.reminder.SendEvent(result)
+	//if err != nil {
+	//	return result, fmt.Errorf("company.AddCompany: %w", err)
+	//}
+	fmt.Printf("Send message to rabbit: %+v \n", result)
+	return result, nil
 }
 
 func (c *CompanyUsecase) SearchCompany(ctx context.Context, conditions map[string]string) ([]model.Company, error) {
@@ -36,18 +42,33 @@ func (c *CompanyUsecase) SearchCompany(ctx context.Context, conditions map[strin
 	return companies, nil
 }
 
-func (c *CompanyUsecase) EditCompany(ctx context.Context, conditions map[string]string, company *model.Company) error {
-	err := c.repoCompany.EditCompany(ctx, conditions, company)
+func (c *CompanyUsecase) EditCompany(
+	ctx context.Context,
+	conditions map[string]string,
+	company *model.Company) ([]model.Company, error) {
+	result, err := c.repoCompany.EditCompany(ctx, conditions, company)
 	if err != nil {
-		return fmt.Errorf("company.EditCompany: %w", err)
+		return result, fmt.Errorf("company.EditCompany: %w", err)
 	}
-	return nil
+	//commented for demo
+	//err = c.reminder.SendEvent(result)
+	//if err != nil {
+	//	return result, fmt.Errorf("company.AddCompany: %w", err)
+	//}
+	fmt.Printf("Send message to rabbit: %+v \n", result)
+	return result, nil
 }
 
-func (c *CompanyUsecase) DeleteCompany(ctx context.Context, conditions map[string]string) error {
-	err := c.repoCompany.SetCompanyInActive(ctx, conditions)
+func (c *CompanyUsecase) DeleteCompany(ctx context.Context, conditions map[string]string) ([]model.Company, error) {
+	result, err := c.repoCompany.SetCompanyInActive(ctx, conditions)
 	if err != nil {
-		return fmt.Errorf("company.DeleteCompany: %w", err)
+		return result, fmt.Errorf("company.DeleteCompany: %w", err)
 	}
-	return nil
+	//commented for demo
+	//err = c.reminder.SendEvent(result)
+	//if err != nil {
+	//	return result, fmt.Errorf("company.AddCompany: %w", err)
+	//}
+	fmt.Printf("Send message to rabbit: %+v \n", result)
+	return result, nil
 }

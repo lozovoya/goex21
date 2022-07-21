@@ -58,7 +58,13 @@ Response format: JSON
 Example response:
 ```azure
 {
-    "message":"ok"
+"id": 1
+"name": "atlassian",
+"code": "team",
+"country": "usa",
+"website": "www.atlassian.com",
+"phone": "33353333",
+"isactive": true
 }
 ```
 
@@ -96,7 +102,13 @@ Response format: JSON
 Example response:
 ```azure
 {
-    "message":"ok"
+"id": 1
+"name": "atlassian",
+"code": "team",
+"country": "usa",
+"website": "www.salattian.com",
+"phone": "33353333",
+"isactive": true
 }
 ```
 
@@ -127,7 +139,13 @@ Response format: JSON
 Example response:
 ```azure
 {
-    "message":"ok"
+"id": 1
+"name": "atlassian",
+"code": "team",
+"country": "usa",
+"website": "www.salattian.com",
+"phone": "33353333",
+"isactive": false
 }
 ```
 
@@ -165,6 +183,7 @@ Example response:
     "country": "usa",
     "website": "www.netflix.com",
     "phone": "1234567"
+    "isactive": true
   },
   {
     "id": 7,
@@ -173,6 +192,7 @@ Example response:
     "country": "usa",
     "website": "www.atlassian.com",
     "phone": "33353333"
+    "isactive": true
   }
 ]
 ```

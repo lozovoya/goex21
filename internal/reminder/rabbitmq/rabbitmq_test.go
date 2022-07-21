@@ -42,7 +42,7 @@ func (s *RabbitTestSuite) TearDownTest() {
 
 func (s *RabbitTestSuite) Test_companyEvent_SendEvent() {
 	type args struct {
-		company *model.Company
+		company []model.Company
 	}
 	tests := []struct {
 		name    string
@@ -52,14 +52,16 @@ func (s *RabbitTestSuite) Test_companyEvent_SendEvent() {
 		{
 			name: "ok",
 			args: args{
-				company: &model.Company{
-					ID:       1,
-					Name:     "epam",
-					Code:     "epam",
-					Country:  "usa",
-					Website:  "www.epam.com",
-					Phone:    "354554",
-					IsActive: true,
+				company: []model.Company{
+					{
+						ID:       1,
+						Name:     "epam",
+						Code:     "epam",
+						Country:  "usa",
+						Website:  "www.epam.com",
+						Phone:    "354554",
+						IsActive: true,
+					},
 				},
 			},
 			wantErr: false,

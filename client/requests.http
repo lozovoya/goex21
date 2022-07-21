@@ -3,8 +3,8 @@ POST http://localhost:8888/api/v1/company/add
 Content-Type: application/json
 
 {
-  "name": "shmoogle",
-  "code": "shgo-co",
+  "name": "shmoodfssffffdffdgle",
+  "code": "fffs-co",
   "country": "usa",
  "website": "www.googdle.com",
   "phone": "33353333"
@@ -16,11 +16,11 @@ GET http://localhost:8888/api/v1/company/search?country=usa
 
 ### Edit company
 
-POST http://localhost:8888/api/v1/company/edit?name=epam
+POST http://localhost:8888/api/v1/company/edit?name=netflix
 Content-Type: application/json
 
 {
-  "website": "asd"
+  "country": "zz"
 }
 
 ### Delete company

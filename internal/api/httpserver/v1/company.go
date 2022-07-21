@@ -28,16 +28,18 @@ func (c *CompanyController) AddCompany(writer http.ResponseWriter, request *http
 		http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
-	id, err := c.company.AddCompany(request.Context(), data)
-	if (err != nil) || (id == 0) {
+	result, err := c.company.AddCompany(request.Context(), data)
+	if (err != nil) || (len(result) == 0) {
 		c.lg.Error(err)
 		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 	var reply = struct {
-		Message string `json:"message"`
+		Length    int `json:"length"`
+		Companies []model.Company
 	}{
-		Message: "ok",
+		Length:    len(result),
+		Companies: result,
 	}
 	writer.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(writer).Encode(reply)
@@ -91,8 +93,8 @@ func (c *CompanyController) EditCompany(writer http.ResponseWriter, request *htt
 		http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
-	err = c.company.EditCompany(request.Context(), conditions, data)
-	if err != nil {
+	result, err := c.company.EditCompany(request.Context(), conditions, data)
+	if (err != nil) || (len(result) == 0) {
 		if errors.Is(err, utils.ErrNoRecords) {
 			http.Error(writer, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 			return
@@ -102,9 +104,11 @@ func (c *CompanyController) EditCompany(writer http.ResponseWriter, request *htt
 		return
 	}
 	var reply = struct {
-		Message string `json:"message"`
+		Length    int `json:"length"`
+		Companies []model.Company
 	}{
-		Message: "ok",
+		Length:    len(result),
+		Companies: result,
 	}
 	writer.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(writer).Encode(reply)
@@ -123,8 +127,8 @@ func (c *CompanyController) DeleteCompany(writer http.ResponseWriter, request *h
 		http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
-	err = c.company.DeleteCompany(request.Context(), conditions)
-	if err != nil {
+	result, err := c.company.DeleteCompany(request.Context(), conditions)
+	if (err != nil) || (len(result) == 0) {
 		if errors.Is(err, utils.ErrNoRecords) {
 			http.Error(writer, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 			return
@@ -134,9 +138,11 @@ func (c *CompanyController) DeleteCompany(writer http.ResponseWriter, request *h
 		return
 	}
 	var reply = struct {
-		Message string `json:"message"`
+		Length    int `json:"length"`
+		Companies []model.Company
 	}{
-		Message: "ok",
+		Length:    len(result),
+		Companies: result,
 	}
 	writer.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(writer).Encode(reply)

@@ -98,7 +98,7 @@ func (s *PostgresTestSuite) Test_AddCompany() {
 	tests := []struct {
 		name    string
 		args    args
-		want    int64
+		want    []model.Company
 		wantErr bool
 	}{
 		{
@@ -113,7 +113,17 @@ func (s *PostgresTestSuite) Test_AddCompany() {
 					Phone:   "4565657",
 				},
 			},
-			want:    5,
+			want: []model.Company{
+				{
+					ID:       5,
+					Name:     "pfizer",
+					Code:     "pfe",
+					Country:  "germany",
+					Website:  "www.pfizer.com",
+					Phone:    "4565657",
+					IsActive: true,
+				},
+			},
 			wantErr: false,
 		},
 		{
@@ -128,6 +138,7 @@ func (s *PostgresTestSuite) Test_AddCompany() {
 					Phone:   "4565657",
 				},
 			},
+			want:    []model.Company{},
 			wantErr: true,
 		},
 		{
@@ -142,7 +153,7 @@ func (s *PostgresTestSuite) Test_AddCompany() {
 					Phone:   "864552",
 				},
 			},
-			//want:    4,
+			want:    []model.Company{},
 			wantErr: true,
 		},
 	}
@@ -175,6 +186,7 @@ func (s *PostgresTestSuite) Test_EditCompany() {
 	tests := []struct {
 		name    string
 		args    args
+		want    []model.Company
 		wantErr bool
 	}{
 		{
@@ -184,6 +196,17 @@ func (s *PostgresTestSuite) Test_EditCompany() {
 				conditions: map[string]string{"name": "netflix"},
 				company: &model.Company{
 					Website: "www.flix.net",
+				},
+			},
+			want: []model.Company{
+				{
+					ID:       1,
+					Name:     "netflix",
+					Code:     "nflx",
+					Country:  "usa",
+					Website:  "www.flix.net",
+					Phone:    "1234567",
+					IsActive: true,
 				},
 			},
 			wantErr: false,
@@ -197,6 +220,17 @@ func (s *PostgresTestSuite) Test_EditCompany() {
 					Phone: "123",
 				},
 			},
+			want: []model.Company{
+				{
+					ID:       1,
+					Name:     "netflix",
+					Code:     "nflx",
+					Country:  "usa",
+					Website:  "www.flix.net",
+					Phone:    "123",
+					IsActive: true,
+				},
+			},
 			wantErr: false,
 		},
 		{
@@ -206,6 +240,26 @@ func (s *PostgresTestSuite) Test_EditCompany() {
 				conditions: map[string]string{"country": "usa"},
 				company: &model.Company{
 					Country: "mexico",
+				},
+			},
+			want: []model.Company{
+				{
+					ID:       3,
+					Name:     "disney",
+					Code:     "dis",
+					Country:  "mexico",
+					Website:  "www.disney.com",
+					Phone:    "888888",
+					IsActive: true,
+				},
+				{
+					ID:       1,
+					Name:     "netflix",
+					Code:     "nflx",
+					Country:  "mexico",
+					Website:  "www.flix.net",
+					Phone:    "123",
+					IsActive: true,
 				},
 			},
 			wantErr: false,
@@ -219,6 +273,7 @@ func (s *PostgresTestSuite) Test_EditCompany() {
 					Code: "nflx",
 				},
 			},
+			want:    []model.Company{},
 			wantErr: true,
 		},
 		{
@@ -230,6 +285,7 @@ func (s *PostgresTestSuite) Test_EditCompany() {
 					Phone: "999",
 				},
 			},
+			want:    []model.Company{},
 			wantErr: true,
 		},
 	}
@@ -238,12 +294,14 @@ func (s *PostgresTestSuite) Test_EditCompany() {
 		tt := tests[i]
 		wg.Add(1)
 		s.Run(tt.name, func() {
-			err := s.testRepo.EditCompany(tt.args.ctx, tt.args.conditions, tt.args.company)
+			got, err := s.testRepo.EditCompany(tt.args.ctx, tt.args.conditions, tt.args.company)
+			fmt.Printf(" Got: %+v \n ", got)
 			if (err != nil) && tt.wantErr {
-				fmt.Printf(" AddCompany() error = %v, wantErr %v \n ", err, tt.wantErr)
+				fmt.Printf(" EditCompany() error = %v, wantErr %v \n ", err, tt.wantErr)
 				wg.Done()
 				return
 			}
+			s.Equal(tt.want, got)
 			wg.Done()
 		})
 	}
@@ -269,20 +327,22 @@ func (s *PostgresTestSuite) Test_SearchCompany() {
 			},
 			want: []model.Company{
 				{
-					ID:      1,
-					Name:    "netflix",
-					Code:    "nflx",
-					Country: "usa",
-					Website: "www.netflix.com",
-					Phone:   "1234567",
+					ID:       1,
+					Name:     "netflix",
+					Code:     "nflx",
+					Country:  "usa",
+					Website:  "www.netflix.com",
+					Phone:    "1234567",
+					IsActive: true,
 				},
 				{
-					ID:      3,
-					Name:    "disney",
-					Code:    "dis",
-					Country: "usa",
-					Website: "www.disney.com",
-					Phone:   "888888",
+					ID:       3,
+					Name:     "disney",
+					Code:     "dis",
+					Country:  "usa",
+					Website:  "www.disney.com",
+					Phone:    "888888",
+					IsActive: true,
 				},
 			},
 			wantErr: false,
@@ -295,12 +355,13 @@ func (s *PostgresTestSuite) Test_SearchCompany() {
 			},
 			want: []model.Company{
 				{
-					ID:      3,
-					Name:    "disney",
-					Code:    "dis",
-					Country: "usa",
-					Website: "www.disney.com",
-					Phone:   "888888",
+					ID:       3,
+					Name:     "disney",
+					Code:     "dis",
+					Country:  "usa",
+					Website:  "www.disney.com",
+					Phone:    "888888",
+					IsActive: true,
 				},
 			},
 			wantErr: false,
@@ -351,6 +412,7 @@ func (s *PostgresTestSuite) Test_SetCompanyInActive() {
 	tests := []struct {
 		name    string
 		args    args
+		want    []model.Company
 		wantErr bool
 	}{
 		{
@@ -358,6 +420,17 @@ func (s *PostgresTestSuite) Test_SetCompanyInActive() {
 			args: args{
 				ctx:        context.Background(),
 				conditions: map[string]string{"name": "epam"},
+			},
+			want: []model.Company{
+				{
+					ID:       2,
+					Name:     "epam",
+					Code:     "epam",
+					Country:  "belarus",
+					Website:  "www.epam.com",
+					Phone:    "9999999",
+					IsActive: false,
+				},
 			},
 			wantErr: false,
 		},
@@ -367,6 +440,17 @@ func (s *PostgresTestSuite) Test_SetCompanyInActive() {
 				ctx:        context.Background(),
 				conditions: map[string]string{"name": "netflix", "country": "usa"},
 			},
+			want: []model.Company{
+				{
+					ID:       1,
+					Name:     "netflix",
+					Code:     "nflx",
+					Country:  "usa",
+					Website:  "www.netflix.com",
+					Phone:    "1234567",
+					IsActive: false,
+				},
+			},
 			wantErr: false,
 		},
 		{
@@ -375,6 +459,7 @@ func (s *PostgresTestSuite) Test_SetCompanyInActive() {
 				ctx:        context.Background(),
 				conditions: map[string]string{"code": "gtlb"},
 			},
+			want:    []model.Company{},
 			wantErr: true,
 		},
 	}
@@ -383,12 +468,14 @@ func (s *PostgresTestSuite) Test_SetCompanyInActive() {
 		tt := tests[i]
 		wg.Add(1)
 		s.Run(tt.name, func() {
-			err := s.testRepo.SetCompanyInActive(tt.args.ctx, tt.args.conditions)
+			got, err := s.testRepo.SetCompanyInActive(tt.args.ctx, tt.args.conditions)
+			fmt.Printf(" Got: %+v \n ", got)
 			if (err != nil) && tt.wantErr {
 				fmt.Printf(" SetCompanyInActive() error = %v, wantErr %v \n ", err, tt.wantErr)
 				wg.Done()
 				return
 			}
+			s.Equal(tt.want, got)
 			wg.Done()
 		})
 	}

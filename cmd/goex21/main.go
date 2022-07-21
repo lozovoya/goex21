@@ -13,6 +13,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"time"
 )
 
 type Params = struct {
@@ -47,6 +48,7 @@ func execute(config Params) (err error) {
 		"app": "GoEx21",
 	})
 
+	// commented for demo
 	//amqpConn, err := amqp.Dial(config.AmqpUrl)
 	//if err != nil {
 	//	lg.Infof("Tried to connect to Rabbit")
@@ -69,8 +71,9 @@ func execute(config Params) (err error) {
 	var creds = map[string]string{config.User: config.Pass}
 	router := httpserver.NewRouter(chi.NewRouter(), companyController, creds, config.Country, lg)
 	server := http.Server{
-		Addr:    net.JoinHostPort(config.Host, config.Port),
-		Handler: &router,
+		Addr:        net.JoinHostPort(config.Host, config.Port),
+		Handler:     &router,
+		IdleTimeout: 30 * time.Second,
 	}
 	return server.ListenAndServe()
 }
