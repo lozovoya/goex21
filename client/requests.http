@@ -20,7 +20,7 @@ POST http://localhost:8888/api/v1/company/edit?name=netflix
 Content-Type: application/json
 
 {
-  "country": "zz"
+  "country": "norway"
 }
 
 ### Delete company
