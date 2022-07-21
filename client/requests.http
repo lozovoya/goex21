@@ -3,10 +3,10 @@ POST http://localhost:8888/api/v1/company/add
 Content-Type: application/json
 
 {
-  "name": "shmoodfssffffdffdgle",
-  "code": "fffs-co",
+  "name": "atlassian",
+  "code": "team",
   "country": "usa",
- "website": "www.googdle.com",
+ "website": "www.atlassian.com",
   "phone": "33353333"
 }
 
