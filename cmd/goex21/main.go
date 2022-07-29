@@ -6,14 +6,15 @@ import (
 	"GoEx21/internal/domain/usecase/company"
 	"GoEx21/internal/repository/postgres"
 	"context"
-	"github.com/caarlos0/env"
-	"github.com/go-chi/chi/v5"
-	"github.com/jackc/pgx/v4/pgxpool"
-	log "github.com/sirupsen/logrus"
 	"net"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/caarlos0/env"
+	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v4/pgxpool"
+	log "github.com/sirupsen/logrus"
 )
 
 type Params = struct {
@@ -71,9 +72,10 @@ func execute(config Params) (err error) {
 	var creds = map[string]string{config.User: config.Pass}
 	router := httpserver.NewRouter(chi.NewRouter(), companyController, creds, config.Country, lg)
 	server := http.Server{
-		Addr:        net.JoinHostPort(config.Host, config.Port),
-		Handler:     &router,
-		IdleTimeout: 30 * time.Second,
+		Addr:              net.JoinHostPort(config.Host, config.Port),
+		Handler:           &router,
+		IdleTimeout:       30 * time.Second,
+		ReadHeaderTimeout: 2 * time.Second,
 	}
 	return server.ListenAndServe()
 }

@@ -4,12 +4,13 @@ import (
 	"GoEx21/internal/domain/model"
 	"context"
 	"fmt"
+	"os"
+	"sync"
+	"testing"
+
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/stretchr/testify/suite"
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
-	"sync"
-	"testing"
 )
 
 type Requests []struct {
@@ -31,7 +32,7 @@ const testDSN = "postgres://app:pass@localhost:5433/testdb"
 
 func loadDataFromYaml(file string) (TestData, error) {
 	var data TestData
-	buf, err := ioutil.ReadFile(file)
+	buf, err := os.ReadFile(file)
 	if err != nil {
 		return data, fmt.Errorf("postgres.loadDataFromYaml: %w", err)
 	}
@@ -175,9 +176,7 @@ func (s *PostgresTestSuite) Test_AddCompany() {
 	}
 	wg.Wait()
 }
-
 func (s *PostgresTestSuite) Test_EditCompany() {
-
 	type args struct {
 		ctx        context.Context
 		conditions map[string]string

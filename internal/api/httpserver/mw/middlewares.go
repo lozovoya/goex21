@@ -3,11 +3,12 @@ package mw
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 func CountryChecker(country string, lg *logrus.Entry) func(next http.Handler) http.Handler {

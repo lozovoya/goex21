@@ -6,9 +6,10 @@ import (
 	"GoEx21/internal/utils"
 	"encoding/json"
 	"errors"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"net/url"
+
+	"github.com/sirupsen/logrus"
 )
 
 type CompanyController struct {

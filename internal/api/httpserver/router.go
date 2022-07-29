@@ -3,6 +3,7 @@ package httpserver
 import (
 	"GoEx21/internal/api/httpserver/mw"
 	v1 "GoEx21/internal/api/httpserver/v1"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/sirupsen/logrus"

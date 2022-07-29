@@ -3,9 +3,10 @@ package rabbitmq
 import (
 	"GoEx21/internal/domain/model"
 	"fmt"
+	"testing"
+
 	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/suite"
-	"testing"
 )
 
 const testAMQP = "amqp://quest:quest@localhost:5673/"
