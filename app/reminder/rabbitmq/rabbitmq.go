@@ -1,8 +1,8 @@
 package rabbitmq
 
 import (
-	"GoEx21/internal/domain/model"
-	"GoEx21/internal/reminder"
+	"GoEx21/app/domain/model"
+	"GoEx21/app/reminder"
 	"encoding/json"
 	"fmt"
 

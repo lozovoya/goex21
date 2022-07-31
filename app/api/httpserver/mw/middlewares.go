@@ -11,7 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func CountryChecker(country string, lg *logrus.Entry) func(next http.Handler) http.Handler {
+func CountryChecker(country string, lg *logrus.Entry) func(next http.Handler) http.Handler { //filter country
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 			address, err := realIP(request.RemoteAddr)

@@ -1,11 +1,12 @@
 package v1
 
 import (
-	"GoEx21/internal/domain/model"
-	"GoEx21/internal/domain/usecase"
-	"GoEx21/internal/utils"
+	"GoEx21/app/domain/model"
+	"GoEx21/app/domain/usecase"
+	"GoEx21/app/utils"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -22,25 +23,22 @@ func NewCompanyController(company usecase.CompanyUsecaseInterface, lg *logrus.En
 }
 
 func (c *CompanyController) AddCompany(writer http.ResponseWriter, request *http.Request) {
-	var data *model.Company
-	err := json.NewDecoder(request.Body).Decode(&data)
+	data, err := c.unmarshalCompany(request)
 	if err != nil {
 		c.lg.Error(err)
 		http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 	result, err := c.company.AddCompany(request.Context(), data)
-	if (err != nil) || (len(result) == 0) {
+	if err != nil {
 		c.lg.Error(err)
 		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 	var reply = struct {
-		Length    int `json:"length"`
-		Companies []model.Company
+		ID int64 `json:"id"`
 	}{
-		Length:    len(result),
-		Companies: result,
+		ID: result.ID,
 	}
 	writer.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(writer).Encode(reply)
@@ -164,3 +162,15 @@ func (c *CompanyController) getParameters(values url.Values) (map[string]string,
 	}
 	return conditions, nil
 }
+
+func (c *CompanyController) unmarshalCompany(request *http.Request) (*model.Company, error) {
+	var data *model.Company
+	err := json.NewDecoder(request.Body).Decode(&data)
+	if err != nil {
+		c.lg.Error(err)
+		return data, fmt.Errorf("v1.unmarshalCompany: %w", err)
+	}
+	return data, err
+}
+
+func replyWrapper() {}

@@ -1,10 +1,10 @@
 package company
 
 import (
-	"GoEx21/internal/domain/model"
-	"GoEx21/internal/domain/usecase"
-	"GoEx21/internal/reminder"
-	"GoEx21/internal/repository"
+	"GoEx21/app/domain/model"
+	"GoEx21/app/domain/usecase"
+	"GoEx21/app/reminder"
+	"GoEx21/app/repository"
 	"context"
 	"fmt"
 )
@@ -20,9 +20,9 @@ func NewCompanyUsecase(
 	return &CompanyUsecase{repoCompany: repoCompany, reminder: reminder}
 }
 
-func (c *CompanyUsecase) AddCompany(ctx context.Context, company *model.Company) ([]model.Company, error) {
+func (c *CompanyUsecase) AddCompany(ctx context.Context, company *model.Company) (*model.Company, error) {
 	result, err := c.repoCompany.AddCompany(ctx, company)
-	if err != nil {
+	if (err != nil) || (result.ID == 0) {
 		return result, fmt.Errorf("company.AddCompany: %w", err)
 	}
 	//commented for demo

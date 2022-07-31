@@ -1,10 +1,10 @@
 package main
 
 import (
-	"GoEx21/internal/api/httpserver"
-	v1 "GoEx21/internal/api/httpserver/v1"
-	"GoEx21/internal/domain/usecase/company"
-	"GoEx21/internal/repository/postgres"
+	"GoEx21/app/api/httpserver"
+	v1 "GoEx21/app/api/httpserver/v1"
+	"GoEx21/app/domain/usecase/company"
+	"GoEx21/app/repository/postgres"
 	"context"
 	"net"
 	"net/http"
@@ -34,13 +34,13 @@ func main() {
 		log.Printf("Config load utils: %v", err)
 		os.Exit(1)
 	}
-	if err = execute(config); err != nil {
+	if err = execute(&config); err != nil {
 		log.Println(err)
 		os.Exit(1)
 	}
 }
 
-func execute(config Params) (err error) {
+func execute(config *Params) (err error) {
 	logrus := log.New()
 	logrus.SetFormatter(&log.JSONFormatter{})
 	logrus.SetOutput(os.Stdout)

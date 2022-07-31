@@ -1,9 +1,9 @@
 package postgres
 
 import (
-	"GoEx21/internal/domain/model"
-	"GoEx21/internal/repository"
-	"GoEx21/internal/utils"
+	"GoEx21/app/domain/model"
+	"GoEx21/app/repository"
+	"GoEx21/app/utils"
 	"context"
 	"errors"
 	"fmt"
@@ -22,19 +22,22 @@ func NewCompanyRepo(pool *pgxpool.Pool) repository.CompanyRepositoryInterface {
 	return &companyRepo{pool: pool}
 }
 
-func (c *companyRepo) AddCompany(ctx context.Context, company *model.Company) ([]model.Company, error) {
-	dbReq := fmt.Sprintf(`INSERT 
-								INTO companies (name, code, country, website, phone) 
-								VALUES ('%s', '%s', '%s', '%s', '%s') 
-								RETURNING %s`,
-		company.Name, company.Code, company.Country, company.Website, company.Phone,
-		ALL_COMPANY_FIELDS)
-	var result []model.Company
-	result, err := c.getCompany(ctx, dbReq)
+func (c *companyRepo) AddCompany(ctx context.Context, company *model.Company) (*model.Company, error) {
+	dbReq := `INSERT 
+			  INTO companies (name, code, country, website, phone) 
+			  VALUES ($1, $2, $3, $4, $5) 
+			  RETURNING id`
+	err := c.pool.QueryRow(ctx,
+		dbReq,
+		company.Name,
+		company.Code,
+		company.Country,
+		company.Website,
+		company.Phone).Scan(&company.ID)
 	if err != nil {
-		return result, fmt.Errorf("postgres.AddCompany: %w", err)
+		return company, fmt.Errorf("postgres.AddCompany: %w", err)
 	}
-	return result, nil
+	return company, nil
 }
 
 func (c *companyRepo) SearchCompany(ctx context.Context, conditions map[string]string) ([]model.Company, error) {
@@ -77,9 +80,9 @@ func (c *companyRepo) SetCompanyInActive(ctx context.Context, conditions map[str
 	return result, nil
 }
 
-func (c *companyRepo) getCompany(ctx context.Context, dbReq string) ([]model.Company, error) {
+func (c *companyRepo) getCompany(ctx context.Context, dbReq string, args ...interface{}) ([]model.Company, error) {
 	var companies = make([]model.Company, 0)
-	rows, err := c.pool.Query(ctx, dbReq)
+	rows, err := c.pool.Query(ctx, dbReq, args)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return companies, utils.ErrNoRecords
@@ -110,7 +113,7 @@ func (c *companyRepo) getCompany(ctx context.Context, dbReq string) ([]model.Com
 func (c *companyRepo) conditionsBuilder(conditions map[string]string) string {
 	result := " "
 	for k, v := range conditions {
-		result = fmt.Sprintf(" %s %s='%s' AND ", result, k, v)
+		result = fmt.Sprintf(" %s %s='%s' AND ", result, k, v) //!!!!! STOP очень плохо, sql injection
 	}
 	return result
 }

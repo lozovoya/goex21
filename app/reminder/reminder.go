@@ -1,7 +1,7 @@
 package reminder
 
 import (
-	"GoEx21/internal/domain/model"
+	"GoEx21/app/domain/model"
 )
 
 type ReminderInterface interface {

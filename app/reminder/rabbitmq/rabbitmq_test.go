@@ -1,7 +1,7 @@
 package rabbitmq
 
 import (
-	"GoEx21/internal/domain/model"
+	"GoEx21/app/domain/model"
 	"fmt"
 	"testing"
 

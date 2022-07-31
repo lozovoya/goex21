@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"GoEx21/internal/domain/model"
+	"GoEx21/app/domain/model"
 	"context"
 	"fmt"
 	"os"
