@@ -1,6 +1,7 @@
 package httpserver
 
 import (
+	"GoEx21/app/api/httpserver/mw"
 	v1 "GoEx21/app/api/httpserver/v1"
 
 	"github.com/go-chi/chi/v5"
@@ -10,7 +11,7 @@ import (
 
 func NewRouter(
 	mux *chi.Mux,
-	companyController *v1.CompanyController,
+	companyController *v1.CompanyHandlers,
 	creds map[string]string,
 	contry string,
 	lg *logrus.Entry) chi.Mux {
@@ -24,18 +25,25 @@ func NewRouter(
 
 func companyRouter(
 	router chi.Router,
-	controller *v1.CompanyController,
+	controller *v1.CompanyHandlers,
 	creds map[string]string,
 	country string,
 	lg *logrus.Entry) {
 	router.
-		//With(middleware.BasicAuth("goex21", creds), mw.CountryChecker(country, lg)).
+		With(middleware.BasicAuth("goex21", creds), mw.CountryChecker(country, lg)).
 		Post("/companies", controller.AddCompany)
 	router.
 		Get("/companies", controller.SearchCompany)
 	router.
+		Get("/companies/{id}", controller.GetCompanyByID)
+	router.
 		Put("/companies", controller.EditCompany)
 	router.
-		//With(middleware.BasicAuth("goex21", creds), mw.CountryChecker(country, lg)).
+		Put("/companies", controller.EditCompanyByID)
+	router.
+		With(middleware.BasicAuth("goex21", creds), mw.CountryChecker(country, lg)).
 		Delete("/companies", controller.DeleteCompany)
+	router.
+		With(middleware.BasicAuth("goex21", creds), mw.CountryChecker(country, lg)).
+		Delete("/companies", controller.DeleteCompanyByID)
 }

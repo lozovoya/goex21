@@ -67,10 +67,10 @@ func execute(config *Params) (err error) {
 	}
 	companyRepo := postgres.NewCompanyRepo(companyPool)
 	companyUsecase := company.NewCompanyUsecase(companyRepo, nil)
-	companyController := v1.NewCompanyController(companyUsecase, lg)
+	CompanyHandlers := v1.NewCompanyController(companyUsecase, lg)
 
 	var creds = map[string]string{config.User: config.Pass}
-	router := httpserver.NewRouter(chi.NewRouter(), companyController, creds, config.Country, lg)
+	router := httpserver.NewRouter(chi.NewRouter(), CompanyHandlers, creds, config.Country, lg)
 	server := http.Server{
 		Addr:              net.JoinHostPort(config.Host, config.Port),
 		Handler:           &router,

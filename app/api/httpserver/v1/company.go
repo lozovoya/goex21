@@ -7,22 +7,24 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/go-chi/chi/v5"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/sirupsen/logrus"
 )
 
-type CompanyController struct {
+type CompanyHandlers struct {
 	company usecase.CompanyUsecaseInterface
 	lg      *logrus.Entry
 }
 
-func NewCompanyController(company usecase.CompanyUsecaseInterface, lg *logrus.Entry) *CompanyController {
-	return &CompanyController{company: company, lg: lg}
+func NewCompanyController(company usecase.CompanyUsecaseInterface, lg *logrus.Entry) *CompanyHandlers {
+	return &CompanyHandlers{company: company, lg: lg}
 }
 
-func (c *CompanyController) AddCompany(writer http.ResponseWriter, request *http.Request) {
+func (c *CompanyHandlers) AddCompany(writer http.ResponseWriter, request *http.Request) {
 	data, err := c.unmarshalCompany(request)
 	if err != nil {
 		c.lg.Error(err)
@@ -49,7 +51,7 @@ func (c *CompanyController) AddCompany(writer http.ResponseWriter, request *http
 	}
 }
 
-func (c *CompanyController) SearchCompany(writer http.ResponseWriter, request *http.Request) {
+func (c *CompanyHandlers) SearchCompany(writer http.ResponseWriter, request *http.Request) {
 	values := request.URL.Query()
 	conditions, err := c.getParameters(values)
 	if (err != nil) && !errors.Is(err, utils.ErrNoParameters) {
@@ -77,7 +79,33 @@ func (c *CompanyController) SearchCompany(writer http.ResponseWriter, request *h
 
 }
 
-func (c *CompanyController) EditCompany(writer http.ResponseWriter, request *http.Request) {
+func (c *CompanyHandlers) GetCompanyByID(writer http.ResponseWriter, request *http.Request) {
+	companyID, err := strconv.Atoi(chi.URLParam(request, "id"))
+	if err != nil {
+		c.lg.Error(err)
+		http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+	reply, err := c.company.GetCompanyByID(request.Context(), companyID)
+	if err != nil {
+		if errors.Is(err, utils.ErrNoRecords) {
+			http.Error(writer, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+			return
+		}
+		c.lg.Error(err)
+		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	writer.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(writer).Encode(reply)
+	if err != nil {
+		c.lg.Error(err)
+		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+}
+
+func (c *CompanyHandlers) EditCompany(writer http.ResponseWriter, request *http.Request) {
 	values := request.URL.Query()
 	conditions, err := c.getParameters(values)
 	if err != nil {
@@ -118,7 +146,45 @@ func (c *CompanyController) EditCompany(writer http.ResponseWriter, request *htt
 	}
 }
 
-func (c *CompanyController) DeleteCompany(writer http.ResponseWriter, request *http.Request) {
+func (c *CompanyHandlers) EditCompanyByID(writer http.ResponseWriter, request *http.Request) {
+	companyID, err := strconv.Atoi(chi.URLParam(request, "id"))
+	if err != nil {
+		c.lg.Error(err)
+		http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+	var data *model.Company
+	err = json.NewDecoder(request.Body).Decode(&data)
+	if err != nil {
+		c.lg.Error(err)
+		http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+	result, err := c.company.EditCompanyByID(request.Context(), companyID, data)
+	if err != nil {
+		if errors.Is(err, utils.ErrNoRecords) {
+			http.Error(writer, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+			return
+		}
+		c.lg.Error(err)
+		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	var reply = struct {
+		Company *model.Company
+	}{
+		Company: result,
+	}
+	writer.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(writer).Encode(reply)
+	if err != nil {
+		c.lg.Error(err)
+		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+}
+
+func (c *CompanyHandlers) DeleteCompany(writer http.ResponseWriter, request *http.Request) {
 	values := request.URL.Query()
 	conditions, err := c.getParameters(values)
 	if err != nil {
@@ -152,18 +218,85 @@ func (c *CompanyController) DeleteCompany(writer http.ResponseWriter, request *h
 	}
 }
 
-func (c *CompanyController) getParameters(values url.Values) (map[string]string, error) {
-	var conditions = make(map[string]string)
-	if len(values) == 0 {
-		return conditions, utils.ErrNoParameters
+func (c *CompanyHandlers) DeleteCompanyByID(writer http.ResponseWriter, request *http.Request) {
+	companyID, err := strconv.Atoi(chi.URLParam(request, "id"))
+	if err != nil {
+		c.lg.Error(err)
+		http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
 	}
-	for k, v := range values {
-		conditions[k] = v[0]
+	result, err := c.company.DeleteCompanyByID(request.Context(), companyID)
+	if err != nil {
+		if errors.Is(err, utils.ErrNoRecords) {
+			http.Error(writer, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+			return
+		}
+		c.lg.Error(err)
+		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
-	return conditions, nil
+	var reply = struct {
+		Company *model.Company
+	}{
+		Company: result,
+	}
+	writer.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(writer).Encode(reply)
+	if err != nil {
+		c.lg.Error(err)
+		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 }
 
-func (c *CompanyController) unmarshalCompany(request *http.Request) (*model.Company, error) {
+//func (c *CompanyHandlers) getParameters(values url.Values) (map[string]string, error) {
+//	var conditions = make(map[string]string)
+//	if len(values) == 0 {
+//		return conditions, utils.ErrNoParameters
+//	}
+//	for k, v := range values {
+//		conditions[k] = v[0]
+//	}
+//	return conditions, nil
+//}
+
+func (c *CompanyHandlers) getParameters(values url.Values) (*model.Conditions, error) {
+	var err error
+	var conditions model.Conditions
+	if len(values) == 0 {
+		return &conditions, utils.ErrNoParameters
+	}
+	if v, ok := values["name"]; ok {
+		conditions.Name.Value = v[0]
+		conditions.Name.IsExist = true
+	}
+	if v, ok := values["code"]; ok {
+		conditions.Code.Value = v[0]
+		conditions.Code.IsExist = true
+	}
+	if v, ok := values["country"]; ok {
+		conditions.Country.Value = v[0]
+		conditions.Country.IsExist = true
+	}
+	if v, ok := values["website"]; ok {
+		conditions.Website.Value = v[0]
+		conditions.Website.IsExist = true
+	}
+	if v, ok := values["phone"]; ok {
+		conditions.Phone.Value = v[0]
+		conditions.Phone.IsExist = true
+	}
+	if v, ok := values["isactive"]; ok {
+		conditions.IsActive.Value, err = strconv.ParseBool(v[0])
+		if err != nil {
+			return &conditions, fmt.Errorf("v1.getParameters: %w", err)
+		}
+		conditions.Code.IsExist = true
+	}
+	return &conditions, nil
+}
+
+func (c *CompanyHandlers) unmarshalCompany(request *http.Request) (*model.Company, error) {
 	var data *model.Company
 	err := json.NewDecoder(request.Body).Decode(&data)
 	if err != nil {
@@ -172,5 +305,3 @@ func (c *CompanyController) unmarshalCompany(request *http.Request) (*model.Comp
 	}
 	return data, err
 }
-
-func replyWrapper() {}

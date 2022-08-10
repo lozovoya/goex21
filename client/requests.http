@@ -12,11 +12,15 @@ Content-Type: application/json
 
 ### Search company
 
-GET http://localhost:8888/api/v1/company/search?country=usa
+GET http://localhost:8888/api/v1/companies?country=usa
+
+### Get company by ID
+
+GET http://localhost:8888/api/v1/companies/2
 
 ### Edit company
 
-POST http://localhost:8888/api/v1/company/edit?name=netflix
+PUT http://localhost:8888/api/v1/companies?name=netflix
 Content-Type: application/json
 
 {
@@ -25,4 +29,4 @@ Content-Type: application/json
 
 ### Delete company
 
-GET http://localhost:8888/api/v1/company/delete?country=usa
+GET http://localhost:8888/api/v1/companies?country=usa
