@@ -6,6 +6,7 @@ import (
 	"GoEx21/app/domain/usecase/company"
 	"GoEx21/app/repository/postgres"
 	"context"
+	"github.com/getsentry/sentry-go"
 	"net"
 	"net/http"
 	"os"
@@ -49,6 +50,21 @@ func execute(config *Params) (err error) {
 		"app": "GoEx21",
 	})
 
+	err = sentry.Init(sentry.ClientOptions{
+		Dsn: "https://f1bf877bcf344d61b6aa4a8ba88b660b@o4504002857664512.ingest.sentry.io/4504002971303936",
+		// Set TracesSampleRate to 1.0 to capture 100%
+		// of transactions for performance monitoring.
+		// We recommend adjusting this value in production,
+		TracesSampleRate: 1.0,
+	})
+	if err != nil {
+		log.Fatalf("sentry.Init: %s", err)
+	}
+	// Flush buffered events before the program terminates.
+	defer sentry.Flush(2 * time.Second)
+
+	sentry.CaptureMessage("It started!")
+
 	// commented for demo
 	//amqpConn, err := amqp.Dial(config.AmqpUrl)
 	//if err != nil {
@@ -59,7 +75,7 @@ func execute(config *Params) (err error) {
 	//	lg.Infof("Tried to connect to Rabbit")
 	//}
 	//defer amqpCh.Close()
-	//reminderService := rabbitmq.NewCompanyEvent(amqpCh)
+	//remind erService := rabbitmq.NewCompanyEvent(amqpCh)
 
 	companyPool, err := pgxpool.Connect(context.Background(), config.DSN)
 	if err != nil {
